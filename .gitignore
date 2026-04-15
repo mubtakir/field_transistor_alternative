@@ -1,0 +1,41 @@
+# ✒️ Al-Qalam & FTA Git Ignore Template
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Large Binary/Office documents (Optional: comment out if needed)
+*.docx
+*.pdf
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project specific
+archive/
+*.log
+renderer_debug.log
+/output/
+/temp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
