@@ -37,8 +37,9 @@ Building a physical operating system and connecting it to the digital world.
 ## Chapter 4: Field-Current Integration (Inductive Plates)
 Turning plates into two-pole loops to integrate magnetic control.
 - **Reinforcement & Opposition**: Using current direction to "pinch" or "expand" the field, shifting logic states physically without the heavy energy cost of repetitive charging.
+- **Design Rule (Orthogonality)**: To ensure maximum magnetic control over passing electrons (e.g., tunneling or filament emission), the electron path must be transverse to the U-loop plane. Specifically, $\mathbf{v}_{electron} \perp \mathbf{B}_{loop}$ must be maintained by situating the electron source and drain such that their axis resides within the loop's geometric center.
 
-![Inductive Loop Results](file:///C:/Users/allmy/Desktop/aaa/field_transistor_alternative/Phase_4_Field_Current_Integration/inductive_loop_logic_results.png)
+![Inductive Loop Results](./assets/images/fta_asset_032.png)
 
 ---
 

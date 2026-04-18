@@ -1,0 +1,95 @@
+// FTA: Field Transistor Alternative - Behavioral Model (Verilog-A)
+// Version 1.0 (Phase 7 Standard)
+// Author: Antigravity Assistant (Project FTA)
+
+`include "disciplines.vams"
+`include "constants.vams"
+
+module fta_device (collector, source, gate_in, gate_out);
+    inout collector, source, gate_in, gate_out;
+    electrical collector, source, gate_in, gate_out;
+
+    // --- Device Parameters ---
+    parameter real d_gap = 5.0e-9 from (0.5e-9:100e-9);    // Nano-gap width (m)
+    parameter real Phi_B = 1.0 from (0.1:5.0);            // Barrier height (eV)
+    parameter real L_plate = 100.0e-6;                    // Plate length (m)
+    parameter real W_plate = 10.0e-6;                     // Plate width (m)
+    parameter real m_eff_ratio = 0.5;                     // Effective mass ratio
+    parameter real mu_r_core = 50000.0;                   // Relative permeability
+    parameter real use_ferro = 0.0;                       // 1.0 to enable HZO Ferro-NC
+    parameter real R_gate_internal = 500.0;               // Internal U-plate resistance
+
+    // --- Local Variables ---
+    real V_gap, E_field, E_eff, B_field, I_gate, J_tunnel, I_tunnel;
+    real m_eff, h_bar, q_e, eps_0, alpha_wkb, integral, A_eff;
+
+    analog begin
+        // --- Physical Constants ---
+        q_e = 1.60217662e-19;
+        h_bar = 1.0545718e-34;
+        eps_0 = 8.85418782e-12;
+        m_eff = m_eff_ratio * 9.10938356e-31;
+
+        // --- 1. Gate Current Determination ---
+        // Simulates the U-plate as a resistive path
+        I_gate = I(gate_in, gate_out);
+        V(gate_in, gate_out) <+ I_gate * R_gate_internal;
+
+        // --- 2. Magnetic Field (Biot-Savart Approximation) ---
+        // B approx mu_0 * mu_r * I / (2 * W)
+        B_field = (4.0 * `M_PI * 1e-7) * mu_r_core * abs(I_gate) / (2.0 * W_plate);
+        if (B_field > 1.2) B_field = 1.2; // Magnetic Saturation
+
+        // --- 3. Electric & Effective Fields ---
+        V_gap = V(source, collector);
+        E_field = abs(V_gap) / d_gap;
+        
+        // Ferroelectric NC Gain (if enabled)
+        if (use_ferro > 0.5) begin
+             E_eff = E_field * (1.0 + 0.5 * exp(-pow((E_field - 1.0e6)/(2.0e6), 2)));
+        end else begin
+             E_eff = E_field;
+        end
+
+        // --- 4. WKB Tunneling Calculation ---
+        alpha_wkb = (q_e * E_eff) - (3.0e8 * B_field * q_e);
+        
+        if (abs(alpha_wkb) < 1.0e-6) begin
+            integral = sqrt(2.0 * m_eff * Phi_B * q_e) * d_gap / h_bar;
+        end else begin
+            // Simplified integral core
+            integral = (sqrt(2.0 * m_eff) / h_bar) * (2.0 / (3.0 * alpha_wkb)) * 
+                       (pow(Phi_B * q_e, 1.5) - pow(max(0.0, Phi_B * q_e - alpha_wkb * d_gap), 1.5));
+        end
+
+        // Current Density Area scaling
+        A_eff = (pow(q_e, 3)) / (8.0 * `M_PI * `P_H * Phi_B * q_e) * (1.0 / m_eff_ratio);
+        
+        if (integral < 60.0) begin
+            J_tunnel = A_eff * pow(E_eff, 2) * exp(-2.0 * integral);
+        end else begin
+            J_tunnel = 0.0;
+        end
+
+        // --- 5. Poole-Frenkel & NDR Correction ---
+        // Simplified Trap-conduction term
+        J_pf = 3e-6 * E_eff * exp(-(0.8 * q_e - sqrt(pow(q_e,3)*E_eff/(3.14*eps_0*3.9)))/(1.38e-23 * 300));
+        J_base = J_tunnel + J_pf;
+
+        if (use_linearization > 0.5) begin
+             J_ndr = J_peak_ndr * exp(-pow((E_eff - E_peak_ndr)/sigma_ndr, 2));
+             J_final = J_base - J_ndr;
+        end else begin
+             J_final = J_base;
+        end
+
+        I_tunnel = J_final * (L_plate * W_plate);
+
+        // --- 6. Branch Contributions ---
+        I(source, collector) <+ I_tunnel * limexp(V_gap * 10.0) / (1.0 + limexp(V_gap * 10.0));
+        
+        // Capacitive effect (parasitic)
+        I(source, collector) <+ (eps_0 * 4.0 * L_plate * W_plate / d_gap) * ddt(V_gap);
+
+    end
+endmodule

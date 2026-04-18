@@ -1,0 +1,53 @@
+// OOS-Lab v1.1: Standard Verilog-A Model for FTA Device
+// Based on Validated Physics: FN Tunneling + NDR Correction
+// Author: Basel Yahya Abdullah
+// Date: March 2026
+
+`include "disciplines.vams"
+`include "constants.vams"
+
+module fta_linearized (d, g, s, b);
+    inout d, g, s, b;
+    electrical d, g, s, b;
+
+    // --- Device Parameters ---
+    parameter real tox = 20n from [2n:100n];         // Gate oxide thickness [m]
+    parameter real area = 1p from [0.1p:100p];        // Active area [m^2]
+    parameter real S0 = 0.008 from [0.001:0.1];       // Static shielding factor
+    parameter real A_fn = 1.0e-6;                     // FN Pre-exponential
+    parameter real B_fn = 2.5e8;                      // FN Barrier factor
+    parameter real J_peak = 4.2e-6;                   // NDR Peak density [A/m^2]
+    parameter real E_peak = 1.2e8;                    // NDR Peak field [V/m]
+    parameter real sigma_ndr = 1.0e8;                 // NDR Spread [V/m]
+
+    // --- Internal Variables ---
+    real Vds, Vgs, E_eff;
+    real J_fn, J_ndr, I_total;
+
+    analog begin
+        Vds = V(d, s);
+        Vgs = V(g, s);
+
+        // Calculate Effective Electric Field (Equation 4.2)
+        E_eff = (Vds - S0 * Vgs) / tox;
+
+        // Fowler-Nordheim Tunneling Component
+        if (E_eff > 0) begin
+            J_fn = A_fn * pow(E_eff, 2) * exp(-B_fn / E_eff);
+        end else begin
+            J_fn = 0;
+        end
+
+        // NDR Material Intelligence Correction (Gaussian Model)
+        J_ndr = J_peak * exp(-pow((E_eff - E_peak) / sigma_ndr, 2));
+
+        // Net Device Current
+        I_total = (J_fn - J_ndr) * area;
+
+        // Apply to current branch
+        I(d, s) <+ I_total;
+
+        // Parasitic Capacitance (Simplified)
+        I(g, s) <+ (`P_EPS0 * 3.9 * area / tox) * ddt(Vgs);
+    end
+endmodule

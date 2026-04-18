@@ -1,0 +1,87 @@
+// ============================================================
+// FTA Linearized Model with Dual NDR Mechanisms
+// Version: 2.0 (Supreme Linearization)
+// Physics: FN Tunneling + PF Saturation + Floating-Gate Self-Shielding
+// Author: Basel Yahya / Antigravity Assistant
+// Date: March 2026
+// ============================================================
+
+`include "disciplines.vams"
+
+module fta_linearized (drain, gate, source, substrate);
+  inout drain, gate, source, substrate;
+  electrical drain, gate, source, substrate;
+  
+  // ============================================================
+  // User Parameters
+  // ============================================================
+  parameter real W = 1.0u;              // Width [m]
+  parameter real L = 100.0n;            // Channel length [m]
+  parameter real tox_eff = 20.0n;       // Effective oxide thickness [m]
+  
+  // Material parameters (default: HfO2)
+  parameter real A_FN = 5.0e-6;         // FN coefficient [A·V^-2]
+  parameter real B_FN = 1.0e8;          // FN barrier [V/m]
+  
+  // Poole-Frenkel (NDR 1)
+  parameter real J_PF_peak = 3.0e-6;    // PF peak current [A/m^2]
+  parameter real sigma_PF = 1.0e8;      // PF width [V/m]
+  parameter real E_PF_peak = 1.1e8;     // PF peak field [V/m]
+  
+  // Self-shielding (NDR 2)
+  parameter real J_SH_peak = 2.0e-6;    // SH peak current [A/m^2]
+  parameter real sigma_SH = 1.2e8;      // SH width [V/m]
+  parameter real E_SH_peak = 1.2e8;     // SH peak field [V/m]
+  
+  parameter real V_BIAS = 2.0;          // Bias voltage target [V]
+  parameter real R_load = 1.0e3;        // External load for gain calc [Ohm]
+  
+  // ============================================================
+  // Physical Constants
+  // ============================================================
+  localparam real q_e = 1.602176e-19;
+  localparam real eps_0 = 8.854187e-12;
+  
+  // ============================================================
+  // Internal Variables
+  // ============================================================
+  real Vds, Vgs, E_field;
+  real J_fn, J_pf, J_sh, J_total, I_total;
+  real S, S0;
+  
+  analog begin
+    // 1. Terminal voltages
+    Vds = V(drain, source);
+    Vgs = V(gate, source);
+    
+    // 2. Bias-dependent shielding (Self-shielding proxy)
+    S0 = 0.008;
+    S = S0 * (1.0 + 0.5 * abs(Vgs) / V_BIAS);
+    E_field = (abs(Vds) - S * abs(Vgs)) / tox_eff;
+    
+    // Safe-clamping
+    if (E_field < 0) E_field = 0;
+    
+    // 3. Current Components
+    J_fn = A_FN * E_field * E_field * exp(-B_FN / E_field);
+    
+    // NDR Components (Gaussian corrections)
+    J_pf = J_PF_peak * exp(-pow((E_field - E_PF_peak)/sigma_PF, 2));
+    J_sh = J_SH_peak * exp(-pow((E_field - E_SH_peak)/sigma_SH, 2));
+    
+    J_total = J_fn - (J_pf + J_sh);
+    
+    // Safety limit to prevent negative total current (physical clamping)
+    if (J_total < 0) J_total = 0;
+    
+    I_total = J_total * (W * L);
+    
+    // 4. Branch contribution
+    I(drain, source) <+ I_total * limexp(Vds * 10.0) / (1.0 + limexp(Vds * 10.0));
+    
+    // 5. Parasitic Capacitance
+    I(drain, source) <+ (eps_0 * 25.0 * W * L / tox_eff) * ddt(Vds);
+    
+  end
+  
+endmodule

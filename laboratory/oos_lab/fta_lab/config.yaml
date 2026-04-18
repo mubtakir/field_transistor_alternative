@@ -1,0 +1,54 @@
+# FTA Virtual Laboratory Configuration File
+# ملف إعدادات مختبر الترانزستور البديل
+
+simulation:
+  default_resolution: [120, 100]      # دقة الشبكة الافتراضية للفروع
+  default_dt: 1e-12                   # خطوة الزمن الافتراضية (1 بيكو ثانية)
+  max_iterations: 10000               # الحد الأقصى للتكرارات
+  convergence_tolerance: 1.0e-6       # دقة التقارب
+  use_adaptive_timestep: true         # استخدام خطوة زمن متكيفة
+
+materials:
+  default_conductor: "copper"
+  default_insulator: "sio2"
+  default_magnetic: "mu_metal"
+  
+  # خصائص المواد (Materials Library Data)
+  copper:
+    conductivity: 5.96e7               # S/m
+    thermal_conductivity: 401          # W/(m·K)
+    density: 8960
+    
+  sio2:
+    permittivity: 3.9
+    breakdown_field: 1.0e9             # V/m
+    thermal_conductivity: 1.4
+    
+  mu_metal:
+    relative_permeability: 50000
+    saturation_magnetization: 1.0      # T
+
+  # DIY / Home Lab Materials
+  graphite_6b:
+    conductivity: 1.0e5                # S/m (High quality pencil)
+    relative_permeability: 1.0
+    density: 2260
+    
+  liquid_silver:
+    conductivity: 6.3e7                # S/m (Conductive Ink)
+    relative_permeability: 1.0
+    cost_factor: "high"
+
+  liquid_copper:
+    conductivity: 5.0e6                # S/m (DIY Copper+PVA)
+    relative_permeability: 1.1         # Slight boost from impurities
+
+output:
+  save_plots: true
+  save_data: true
+  plot_dpi: 150
+  data_format: "npy"                   # npy, csv, json
+
+hardware:
+  use_gpu: true
+  taichi_arch: "gpu"                   # gpu, cpu

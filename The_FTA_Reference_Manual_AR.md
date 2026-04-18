@@ -50,7 +50,7 @@ graph TD
 تحويل الصفائح إلى حلقات ذات قطبين لدمج التحكم المغناطيسي.
 - **مبدأ التعزيز والتعارض**: باستخدام اتجاه التيار، يمكننا "ضغط" أو "تعزيز" الحقل، مما يغير حالة المنطق فيزيائياً دون استهلاك طاقة الشحن الكبيرة.
 
-![نتائج محاكاة الحلقات الحثية](file:///C:/Users/allmy/Desktop/aaa/field_transistor_alternative/Phase_4_Field_Current_Integration/inductive_loop_logic_results.png)
+![نتائج محاكاة الحلقات الحثية](./assets/images/fta_asset_032.png)
 
 ---
 

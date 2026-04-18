@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مختبر FTA الافتراضي | Control Center</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="glass-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🔬</span>
+                <h1>FTA v1.0</h1>
+            </div>
+            <nav>
+                <div class="nav-item active">لوحة التحكم</div>
+                <div class="nav-item">نماذج الأجهزة</div>
+                <div class="nav-item">مكتبة المواد</div>
+                <div class="nav-item">التقارير</div>
+            </nav>
+            <div class="status-indicator">
+                <span class="dot"></span> متصل بالمختبر
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="top-bar">
+                <h2>مركز التحكم والتحليل الفيزيائي</h2>
+                <div class="user-profile">باحث: باسل يحيى</div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Control Panel -->
+                <section class="card control-panel">
+                    <h3>إعدادات الجهاز (Geometry)</h3>
+                    <div class="input-group">
+                        <label>الطول (Length μm):</label>
+                        <input type="range" id="len-slider" min="10" max="500" value="100">
+                        <span id="len-val">100</span>
+                    </div>
+                    <div class="input-group">
+                        <label>الفجوة (Gap nm):</label>
+                        <input type="range" id="gap-slider" min="1" max="50" value="5">
+                        <span id="gap-val">5</span>
+                    </div>
+                    <div class="input-group">
+                        <label>جهد التغذية (V_DD):</label>
+                        <input type="number" id="vdd-input" value="50">
+                    </div>
+                    <button id="run-btn" class="primary-btn">تشغيل المحاكاة</button>
+                </section>
+
+                <!-- Visualization -->
+                <section class="card vis-panel">
+                    <h3>نتائج المحاكاة (IV Curves)</h3>
+                    <canvas id="iv-chart"></canvas>
+                </section>
+
+                <!-- Materials Info -->
+                <section class="card materials-panel">
+                    <h3>خصائص المادة النشطة</h3>
+                    <div id="material-data">
+                        <p><strong>الموصل:</strong> النحاس (Cu)</p>
+                        <p><strong>العازل:</strong> SiO2</p>
+                        <p><strong>المغناطيس:</strong> Mu-Metal</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
