@@ -2,9 +2,9 @@ import os
 import re
 
 # Paths
-source_md = r'c:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\FTA_Book_Draft_AR_V3_1_Masterpiece0.md'
-source_html = r'c:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\FTA_Book_Draft_AR_V3_1_Masterpiece.html'
-target_path = r'c:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\FTA_Book_Draft_AR_V3_1_Masterpiece.md'
+source_md = r'.\FTA_Book_Draft_AR_V3_1_Masterpiece0.md'
+source_html = r'.\FTA_Book_Draft_AR_V3_1_Masterpiece.html'
+target_path = r'.\FTA_Book_Draft_AR_V3_1_Masterpiece.md'
 
 # V4.0 Content in Arabic
 v4_content = """

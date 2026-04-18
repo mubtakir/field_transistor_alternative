@@ -5,12 +5,21 @@ import os
 import sys
 
 # Add project root 
-sys.path.append('c:/Users/allmy/Desktop/oos')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 # Mocking internal device structures if not found to ensure script runs standalone for data generation
 try:
     from oos_lab.devices.graphene_fta import GrapheneFTA
+    from oos_lab.physics.materials_library import get_material_params
 except ImportError:
+    # Minimal mock for standalone run if oos_lab not in path
+    def get_material_params(name):
+        lib = {
+            'Graphene': {'carrier_mobility': 1e5, 'sheet_resistance': 30, 'quantum_capacitance': 15e-6, 'transparency_factor': 0.98},
+            'Molybdenum': {'work_function': 4.6}
+        }
+        return lib.get(name, {})
+
     class GrapheneFTA:
         def __init__(self, geometry, transparency=0.0, R_graphene=50.0, c_factor=1.0):
             self.geom = geometry
@@ -44,14 +53,19 @@ def run_thz_comparison():
     }
     
     # Parameters for analysis
-    R_metal, C_metal_base = 50.0, 1.0e-15 # 1 fF base
-    R_gr, C_gr_factor = 10.0, 0.05 # 20x lower capacitance due to atomic layer
+    params_gr = get_material_params('Graphene')
+    params_mo = get_material_params('Molybdenum')
     
-    # 1. Standard Metal Gate
+    R_metal, C_metal_base = 50.0, 1.0e-15 # 1 fF base
+    # Calculate relative R and C factors based on library data
+    R_gr = params_gr.get('sheet_resistance', 10.0) 
+    C_gr_factor = (params_gr.get('quantum_capacitance', 15e-6) / 300e-6) # normalized for 2D stackup vs bulk
+    
+    # 1. Standard Metal (Molybdenum) Gate
     metal_fta = GrapheneFTA(geometry, transparency=0.0, R_graphene=R_metal, c_factor=1.0)
     
     # 2. Graphene Gate
-    gr_fta = GrapheneFTA(geometry, transparency=0.4, R_graphene=R_gr, c_factor=C_gr_factor)
+    gr_fta = GrapheneFTA(geometry, transparency=params_gr.get('transparency_factor', 0.4), R_graphene=R_gr, c_factor=C_gr_factor)
     
     # --- TEST 1: FEMTOSECOND RISE TIME ---
     t_span = (0, 0.5e-12) # 500 fs window
@@ -120,7 +134,8 @@ def run_thz_comparison():
     ax2.grid(True, which='both', alpha=0.1, color='white')
     
     plt.tight_layout()
-    plot_path = "c:/Users/allmy/Desktop/oos/oos_lab/analysis/graphene_thz_comparison.png"
+    # Path relative to project root (assuming run from root)
+    plot_path = "assets/images1/graphene_thz_comparison.png"
     plt.savefig(plot_path, facecolor=fig.get_facecolor())
     print(f"\nResults saved to: {plot_path}")
     
@@ -137,6 +152,9 @@ def run_thz_comparison():
     print("Graphene gate thickness allows for ultra-low parasitic capacitance")
     print("and field transparency, pushing the switching limit deeply into the THz regime.")
     print("="*50)
+
+if __name__ == "__main__":
+    run_thz_comparison()
 
 if __name__ == "__main__":
     run_thz_comparison()

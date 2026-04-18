@@ -186,7 +186,7 @@ def run_phase8_simulation():
     plt.legend(); plt.grid(True)
     
     plt.tight_layout()
-    image_path = r'C:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\images\fta_phase8_nested_inductors.png'
+    image_path = r'assets\images1\fta_phase8_nested_inductors.png'
     plt.savefig(image_path, dpi=150)
     print(f"\n-> Phase 8 Complete. Visualization saved to {image_path}")
 

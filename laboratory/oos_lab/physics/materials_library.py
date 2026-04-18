@@ -54,7 +54,11 @@ MATERIALS = {
         'work_function': 4.5,
         'thermal_conductivity': 5000,
         'transparency_factor': 0.98,
-        'description': 'Atomic layer protection. High thermal conductivity and transparent to field penetration.'
+        'carrier_mobility': 1.0e5, # cm^2/Vs
+        'fermi_velocity': 1.0e6,    # m/s
+        'quantum_capacitance': 15.0e-6, # F/cm^2
+        'sheet_resistance': 30.0,   # Ohms/sq
+        'description': 'Atomic layer protection. High thermal conductivity, transparent to field, and supports THz switching.'
     },
     'h-BN': {
         'epsilon_r': 4.0,

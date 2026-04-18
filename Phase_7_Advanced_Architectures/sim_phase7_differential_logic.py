@@ -146,7 +146,7 @@ def run_phase7():
     plt.legend(); plt.grid(True)
     
     plt.tight_layout()
-    plt.savefig(r'C:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\images\fta_phase7_differential.png', dpi=150)
+    plt.savefig(r'assets\images1\fta_phase7_differential.png', dpi=150)
     print(f"\n-> Phase 7 Complete. Results saved to images/fta_phase7_differential.png")
 
 if __name__ == '__main__':

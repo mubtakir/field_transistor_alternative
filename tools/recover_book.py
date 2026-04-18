@@ -1,7 +1,7 @@
 import os
 
-source_path = r'c:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\FTA_Book_Draft_AR_V3_1_Masterpiece0.md'
-target_path = r'c:\Users\allmy\Desktop\oos\field_transistor_alternative\phase2_foundations\FTA_Book_Draft_AR_V3_1_Masterpiece.md'
+source_path = r'.\FTA_Book_Draft_AR_V3_1_Masterpiece0.md'
+target_path = r'.\FTA_Book_Draft_AR_V3_1_Masterpiece.md'
 
 # Core V4.0 Content in Arabic (Synthesized from session history)
 v4_content = """
